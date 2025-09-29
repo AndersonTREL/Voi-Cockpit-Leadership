@@ -36,10 +36,10 @@ export async function POST() {
     await prisma.$connect()
     console.log("Database connected successfully")
     
-    // Try to run prisma db push programmatically
-    const { execSync } = require('child_process')
-    
     try {
+      // Import execSync dynamically to avoid require() issues
+      const { execSync } = await import('child_process')
+      
       // Run prisma db push to create tables
       execSync('npx prisma db push --force-reset', { 
         stdio: 'pipe',
