@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?   // For credentials authentication
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  tasks    Task[]    @relation("TaskOwner")
+  comments Comment[]
+  activities Activity[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Status {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  BLOCKED
+  CANCELLED
+}
+
+enum Risk {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Task {
+  id                String    @id @default(cuid())
+  title             String
+  description       String?
+  area              String
+  subArea           String?
+  endProduct        String?
+  ownerId           String
+  priority          Priority  @default(MEDIUM)
+  status            Status    @default(TODO)
+  acceptanceCriteria String?
+  dueDate           DateTime?
+  startDate         DateTime?
+  effort            Int?      // in hours
+  risk              Risk?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  owner       User         @relation("TaskOwner", fields: [ownerId], references: [id])
+  subtasks    Subtask[]
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents  TaskDependency[] @relation("DependentTasks")
+  comments    Comment[]
+  attachments Attachment[]
+  activities  Activity[]
+  views       TaskView[]
+}
+
+model Subtask {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  taskId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model TaskDependency {
+  id           String @id @default(cuid())
+  taskId       String
+  dependentId  String
+  createdAt    DateTime @default(now())
+
+  task      Task @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+  dependent Task @relation("DependentTasks", fields: [dependentId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dependentId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  taskId    String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  size      Int
+  mimeType  String
+  taskId    String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  type      String   // 'created', 'updated', 'commented', 'status_changed', etc.
+  message   String
+  taskId    String?
+  userId    String
+  metadata  Json?    // Additional data about the activity
+  createdAt DateTime @default(now())
+
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User  @relation(fields: [userId], references: [id])
+}
+
+model TaskView {
+  id          String   @id @default(cuid())
+  name        String
+  filters     Json     // Saved filter criteria
+  columns     Json     // Saved column configuration
+  sortBy      String?
+  sortOrder   String?
+  taskId      String?
+  userId      String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
