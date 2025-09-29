@@ -225,4 +225,4 @@ For support and questions:
 
 ---
 
-Built with ❤️ for efficient team collaboration and project management.
+Built with ❤️ for efficient team collaboration and project management.# Environment variables configured for production
