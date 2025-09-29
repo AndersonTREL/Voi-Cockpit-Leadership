@@ -122,7 +122,8 @@ async function exportToCSV(tasks: any[]) {
     'Updated': new Date(task.updatedAt).toLocaleDateString()
   }))
 
-  const csv = new Parser().unparse(csvData)
+  const parser = new Parser()
+  const csv = parser.unparse(csvData)
   
   return new NextResponse(csv, {
     headers: {
