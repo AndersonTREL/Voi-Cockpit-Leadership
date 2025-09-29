@@ -10,6 +10,22 @@ export async function GET() {
     // Try to count users
     let userCount = await prisma.user.count()
     
+    // Verify andersonmeta1996@gmail.com if it exists but isn't verified
+    const andersonUser = await prisma.user.findUnique({
+      where: { email: 'andersonmeta1996@gmail.com' }
+    })
+    
+    if (andersonUser && !andersonUser.emailVerified) {
+      await prisma.user.update({
+        where: { id: andersonUser.id },
+        data: { 
+          emailVerified: new Date(),
+          isActive: true 
+        }
+      })
+      console.log('✅ Verified andersonmeta1996@gmail.com')
+    }
+    
     // If no users exist, create admin user
     if (userCount === 0) {
       const hashedPassword = await bcrypt.hash("password123", 10)
