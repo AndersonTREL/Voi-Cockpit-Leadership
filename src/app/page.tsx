@@ -1,8 +1,14 @@
-export default function Home() {
-  return (
-    <div>
-      <h1>Hello World - VOI Cockpit Leadership</h1>
-      <p>If you can see this, the app is working!</p>
-    </div>
-  )
+import { redirect } from "next/navigation"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { Dashboard } from "@/components/dashboard"
+
+export default async function Home() {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect("/auth/signin")
+  }
+
+  return <Dashboard />
 }
