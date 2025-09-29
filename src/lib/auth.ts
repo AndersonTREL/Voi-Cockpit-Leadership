@@ -1,4 +1,5 @@
 import { NextAuthOptions } from "next-auth"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
@@ -44,6 +45,7 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordValid) {
             // Increment failed login attempts
             const newFailedAttempts = user.failedLoginAttempts + 1
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const updateData: any = { failedLoginAttempts: newFailedAttempts }
             
             // Lock account after 5 failed attempts
@@ -73,8 +75,8 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id,
             email: user.email,
-            name: user.name,
-            image: user.image,
+            name: user.name || user.email,
+            image: user.image || undefined,
             role: user.role,
             isActive: user.isActive,
           }
@@ -103,8 +105,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (session.user as any).id = token.id as string
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (session.user as any).role = token.role as string
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (session.user as any).isActive = token.isActive as boolean
       }
       return session

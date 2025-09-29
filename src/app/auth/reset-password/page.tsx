@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Eye, EyeOff, CheckCircle, XCircle, Loader2, AlertTriangle } from "lucid
 import Link from "next/link"
 import { validatePassword, calculatePasswordStrength } from "@/lib/auth-utils"
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: ""
@@ -446,5 +446,13 @@ export default function ResetPassword() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

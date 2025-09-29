@@ -137,7 +137,12 @@ async function main() {
 
   for (const taskData of tasks) {
     const task = await prisma.task.create({
-      data: taskData,
+      data: {
+        ...taskData,
+        priority: taskData.priority as any,
+        status: taskData.status as any,
+        risk: taskData.risk as any,
+      },
     })
 
     // Create activity log entry

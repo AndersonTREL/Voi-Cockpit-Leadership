@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import * as XLSX from 'xlsx'
-import { Parser } from 'papaparse'
+import Papa from 'papaparse'
 
 export async function POST(request: NextRequest) {
   try {
@@ -122,8 +122,7 @@ async function exportToCSV(tasks: any[]) {
     'Updated': new Date(task.updatedAt).toLocaleDateString()
   }))
 
-  const parser = new Parser()
-  const csv = parser.unparse(csvData)
+  const csv = Papa.unparse(csvData)
   
   return new NextResponse(csv, {
     headers: {

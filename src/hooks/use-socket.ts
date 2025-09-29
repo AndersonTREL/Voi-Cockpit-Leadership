@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 
 export const useSocket = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [socket, setSocket] = useState<any>(null)
   const [isConnected, setIsConnected] = useState(false)
 
