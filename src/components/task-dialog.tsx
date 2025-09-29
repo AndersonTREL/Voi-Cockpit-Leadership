@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { Task } from "@/types/task"
 import {
   Dialog,
   DialogContent,
@@ -17,36 +18,46 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Priority, Status, Risk } from "@/types/task"
 import { toast } from "sonner"
 
-const taskSchema = z.object({
+const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   area: z.string().min(1, "Area is required"),
   subArea: z.string().optional(),
+  endProduct: z.string().optional(),
+  owner: z.string().min(1, "Owner is required"),
   priority: z.nativeEnum(Priority),
   status: z.nativeEnum(Status),
   dueDate: z.string().optional(),
   startDate: z.string().optional(),
-  effort: z.number().optional(),
+  effort: z.string().optional(),
   risk: z.nativeEnum(Risk).optional(),
 })
 
-type TaskFormData = z.infer<typeof taskSchema>
+const taskSchema = taskFormSchema.transform(data => ({
+  ...data,
+  effort: data.effort === "" || data.effort === null || data.effort === undefined 
+    ? undefined 
+    : (() => {
+        const num = Number(data.effort);
+        return isNaN(num) ? undefined : num;
+      })()
+}))
+
+type TaskFormData = z.infer<typeof taskFormSchema>
 
 interface TaskDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  task?: any
+  task?: Task
   onTaskSaved?: () => void
 }
 
 export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [users, setUsers] = useState<{ id: string; name: string; email: string }[]>([])
-
+  const [users, setUsers] = useState<Array<{ id: string; name: string; email: string }>>([])
   const {
     register,
     handleSubmit,
@@ -55,10 +66,19 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
     setValue,
     watch,
   } = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
+    resolver: zodResolver(taskFormSchema),
     defaultValues: {
+      title: "",
+      description: "",
+      area: "",
+      subArea: "",
+      owner: "",
       priority: Priority.MEDIUM,
       status: Status.TODO,
+      dueDate: "",
+      startDate: "",
+      effort: undefined,
+      risk: undefined,
     },
   })
 
@@ -67,11 +87,17 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
       fetchUsers()
       if (task) {
         // Populate form with task data
-        Object.keys(task).forEach((key) => {
-          if (task[key] !== undefined) {
-            setValue(key as keyof TaskFormData, task[key])
-          }
-        })
+        setValue("title", task.title)
+        setValue("description", task.description || "")
+        setValue("area", task.area)
+        setValue("subArea", task.subArea || "")
+        setValue("owner", task.ownerId) // Use ownerId for the dropdown value
+        setValue("priority", task.priority)
+        setValue("status", task.status)
+        setValue("dueDate", task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : "")
+        setValue("startDate", task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : "")
+        setValue("effort", task.effort?.toString() || "")
+        setValue("risk", task.risk || undefined)
       } else {
         reset()
       }
@@ -88,19 +114,33 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
     }
   }
 
-  const onSubmit = async (data: TaskFormData) => {
+  const onSubmit = async (formData: TaskFormData) => {
+    const data = taskSchema.parse(formData)
     setIsLoading(true)
+    // Clean up the data - convert empty strings to undefined for optional fields
+    const cleanedData = {
+      ...data,
+      description: data.description === "" ? undefined : data.description,
+      subArea: data.subArea === "" ? undefined : data.subArea,
+      dueDate: data.dueDate === "" ? undefined : data.dueDate,
+      startDate: data.startDate === "" ? undefined : data.startDate,
+    }
+    
+    console.log("Form data being sent:", cleanedData)
     try {
       const url = task ? `/api/tasks/${task.id}` : "/api/tasks"
       const method = task ? "PUT" : "POST"
       
+      console.log("Sending request to:", url, "with method:", method)
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(cleanedData),
       })
+      
+      console.log("Response status:", response.status)
 
       if (response.ok) {
         toast.success(task ? "Task updated successfully" : "Task created successfully")
@@ -114,10 +154,12 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
           window.location.reload()
         }
       } else {
-        throw new Error("Failed to save task")
+        const errorData = await response.json()
+        console.error("API Error:", errorData)
+        throw new Error(errorData.error || "Failed to save task")
       }
     } catch (error) {
-      toast.error("Failed to save task")
+      toast.error((error as any)?.message || "Failed to save task")
       console.error("Error saving task:", error)
     } finally {
       setIsLoading(false)
@@ -166,6 +208,28 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
               {...register("subArea")}
               placeholder="Enter sub-area"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="owner">Owner *</Label>
+            <Select
+              value={watch("owner")}
+              onValueChange={(value) => setValue("owner", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.owner && (
+              <p className="text-sm text-red-600">{errors.owner.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -219,7 +283,7 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
               <Label htmlFor="risk">Risk</Label>
               <Select
                 value={watch("risk") || "NONE"}
-                onValueChange={(value) => setValue("risk", value === "NONE" ? null : value as Risk)}
+                onValueChange={(value) => setValue("risk", value === "NONE" ? undefined : value as Risk)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select risk" />
@@ -254,13 +318,16 @@ export function TaskDialog({ open, onOpenChange, task, onTaskSaved }: TaskDialog
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="effort">Effort (hours)</Label>
+              <Label htmlFor="effort">Effort (hours) - Optional</Label>
               <Input
                 id="effort"
                 type="number"
-                {...register("effort", { valueAsNumber: true })}
+                {...register("effort")}
                 placeholder="0"
               />
+              {errors.effort && (
+                <p className="text-sm text-red-600">{errors.effort.message}</p>
+              )}
             </div>
           </div>
 

@@ -120,3 +120,145 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Modern Professional Background */
+body {
+  background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+  min-height: 100vh;
+}
+
+/* Professional gradient variations */
+.gradient-bg {
+  background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+}
+
+.gradient-bg-alt {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-bg-blue {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-bg-purple {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.gradient-bg-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.gradient-bg-forest {
+  background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+}
+
+/* Card styling with modern shadows */
+.modern-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Header styling */
+.modern-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Button styling */
+.modern-button {
+  background: linear-gradient(135deg, #14b8a6, #10b981);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease-out;
+  box-shadow: 0 4px 14px rgba(20, 184, 166, 0.25);
+  border-radius: 9999px;
+}
+
+.modern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(20, 184, 166, 0.35);
+  background: linear-gradient(135deg, #0d9488, #059669);
+}
+
+.modern-button:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+/* Enhanced button animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(19, 78, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 25px rgba(19, 78, 94, 0.6);
+  }
+}
+
+.button-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Tab transition improvements */
+.tab-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-transition:hover {
+  transform: translateY(-1px);
+}
+
+/* Glass morphism effect for dropdowns */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Modern pill buttons */
+.pill-button {
+  border-radius: 9999px;
+  transition: all 0.2s ease-out;
+}
+
+.pill-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Subtle shadows */
+.shadow-subtle {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* Modern transitions */
+.transition-modern {
+  transition: all 0.2s ease-out;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 640px) {
+  .modern-card {
+    margin: 0.5rem;
+    border-radius: 12px;
+  }
+  
+  .gradient-bg-forest {
+    padding: 0.5rem;
+  }
+  
+  .modern-button {
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+  }
+}

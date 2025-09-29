@@ -1,0 +1,19 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart-shaped leaves logo -->
+  <g>
+    <!-- Left leaf (darker green) -->
+    <path d="M50 20 C35 30, 35 50, 50 65 C60 72, 70 65, 80 55 C70 65, 60 72, 50 65 C35 50, 35 30, 50 20 Z" fill="#2E8B57"/>
+    <!-- Right leaf (lighter green) -->
+    <path d="M150 20 C165 30, 165 50, 150 65 C140 72, 130 65, 120 55 C130 65, 140 72, 150 65 C165 50, 165 30, 150 20 Z" fill="#8BC34A"/>
+    <!-- Leaf veins - left leaf -->
+    <path d="M50 30 L65 40 M50 45 L70 50 M50 60 L65 58" stroke="#4CAF50" stroke-width="1.5" fill="none" opacity="0.7"/>
+    <!-- Leaf veins - right leaf -->
+    <path d="M150 30 L135 40 M150 45 L130 50 M150 60 L135 58" stroke="#A4D65E" stroke-width="1.5" fill="none" opacity="0.7"/>
+  </g>
+  
+  <!-- TREE LOGISTICS text -->
+  <text x="100" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2E8B57" letter-spacing="2px">TREE LOGISTICS</text>
+  
+  <!-- SUSTAINABLE LAST MILE text -->
+  <text x="100" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="#8BC34A" letter-spacing="1px">SUSTAINABLE LAST MILE</text>
+</svg>

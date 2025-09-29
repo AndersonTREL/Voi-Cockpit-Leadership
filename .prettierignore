@@ -8,3 +8,5 @@ coverage
 .env*
 public
 prisma/migrations
+
+

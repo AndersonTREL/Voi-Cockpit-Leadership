@@ -1,115 +1,152 @@
 # SCC Task Manager
 
-A professional, modern task management web application built with Next.js 14, TypeScript, and Tailwind CSS.
+A modern, feature-rich task management application built with Next.js, designed for teams to collaborate and manage projects effectively.
 
-## Features
+## 🚀 Features
 
-### Core Fields
+### Core Functionality
+- **Task Management**: Create, edit, and track tasks with detailed information
+- **User Authentication**: Secure login with email verification
+- **Role-Based Access Control**: Admin, Manager, User, and Viewer roles
+- **Real-time Updates**: Live task updates using Socket.IO
+- **Activity Tracking**: Comprehensive activity feed for all actions
 
-- **Area** - Project area classification
-- **Sub-Area** - More specific categorization
-- **End Product** - Deliverable description
-- **Owner** - Task assignee
-- **Priority** - LOW, MEDIUM, HIGH, URGENT
-- **Status** - TODO, IN_PROGRESS, IN_REVIEW, DONE, BLOCKED, CANCELLED
+### Advanced Features
+- **Export Options**: Export tasks to PDF, Excel, and CSV formats
+- **Deadline Alerts**: Smart notifications for approaching deadlines
+- **Custom Dashboards**: Personalized dashboard widgets
+- **Task Search & Filters**: Advanced filtering and search capabilities
+- **Admin Panel**: Complete user and role management system
+- **Modern UI**: Beautiful, responsive design with glass morphism effects
 
-### Enhanced Features
+### Task Properties
+- Title, Description, Area, Sub-Area
+- End Product, Owner, Priority, Status
+- Due Date, Start Date, Effort Estimation
+- Risk Assessment, Acceptance Criteria
 
-- **Acceptance Criteria** - Detailed requirements
-- **Due/Start Dates** - Timeline management
-- **Effort Estimation** - Time tracking in hours
-- **Risk Assessment** - LOW, MEDIUM, HIGH, CRITICAL
-- **Dependencies** - Task relationships
-- **Subtasks** - Task breakdown
-- **Comments** - Collaboration and feedback
-- **Attachments** - File support
-- **Activity Log** - Complete audit trail
-- **Saved Views** - Custom filters and layouts
-- **Real-time Dashboard** - Live updates and analytics
+## 🛠️ Tech Stack
 
-## Tech Stack
-
-- **Frontend**: Next.js 14 (App Router) + TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **Icons**: lucide-react
-- **Database**: Prisma + PostgreSQL
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS with custom components
+- **UI Components**: Radix UI, Shadcn/ui
+- **Database**: SQLite with Prisma ORM
 - **Authentication**: NextAuth.js
-- **Forms**: React Hook Form + Zod validation
 - **Real-time**: Socket.IO
-- **Tables**: TanStack Table
-- **Testing**: Vitest + Playwright
+- **Email**: Nodemailer
+- **Export**: jsPDF, html2canvas, xlsx, papaparse
 
-## Getting Started
+## 📋 Prerequisites
 
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL database
+- Node.js 18+ 
 - npm or yarn
+- Git
 
-### Installation
+## 🚀 Quick Start
 
-1. **Clone the repository**
+### 1. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd scc-task-manager
+```
 
-   ```bash
-   git clone <repository-url>
-   cd scc-task-manager
-   ```
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-2. **Install dependencies**
+### 3. Set Up Environment Variables
+Create a `.env.local` file in the root directory:
 
-   ```bash
-   npm install
-   ```
+```env
+# Database
+DATABASE_URL="file:./dev.db"
 
-3. **Set up environment variables**
+# NextAuth
+NEXTAUTH_SECRET="your-secret-key-here"
+NEXTAUTH_URL="http://localhost:3000"
 
-   ```bash
-   cp .env.example .env
-   ```
+# Email Configuration (for production)
+EMAIL_SERVER_HOST="your-smtp-host"
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER="your-email"
+EMAIL_SERVER_PASSWORD="your-password"
+EMAIL_FROM="noreply@yourdomain.com"
 
-   Update `.env` with your database URL and other configuration:
+# Socket.IO
+NEXT_PUBLIC_SOCKET_IO_URL="http://localhost:3000"
+```
 
-   ```env
-   DATABASE_URL="postgresql://username:password@localhost:5432/scc_task_manager?schema=public"
-   NEXTAUTH_URL="http://localhost:3000"
-   NEXTAUTH_SECRET="your-secret-key-here"
-   SOCKET_IO_URL="http://localhost:3000"
-   ```
+### 4. Set Up Database
+```bash
+# Generate Prisma client
+npm run db:generate
 
-4. **Set up the database**
+# Push database schema
+npm run db:push
 
-   ```bash
-   # Generate Prisma client
-   npm run db:generate
+# Seed initial data
+npm run db:seed
+```
 
-   # Push schema to database
-   npm run db:push
+### 5. Start Development Server
+```bash
+npm run dev
+```
 
-   # Seed with sample data
-   npm run db:seed
-   ```
+Visit `http://localhost:3000` to see the application.
 
-5. **Start the development server**
+## 📁 Project Structure
 
-   ```bash
-   npm run dev
-   ```
+```
+scc-task-manager/
+├── src/
+│   ├── app/                 # Next.js app directory
+│   │   ├── api/            # API routes
+│   │   ├── auth/           # Authentication pages
+│   │   ├── admin/          # Admin panel
+│   │   └── globals.css     # Global styles
+│   ├── components/         # React components
+│   │   ├── ui/            # Reusable UI components
+│   │   ├── dashboard.tsx  # Main dashboard
+│   │   ├── task-table.tsx # Task management
+│   │   └── ...
+│   ├── lib/               # Utility libraries
+│   │   ├── auth.ts        # Authentication config
+│   │   ├── prisma.ts      # Database client
+│   │   └── ...
+│   └── types/             # TypeScript type definitions
+├── prisma/
+│   ├── schema.prisma      # Database schema
+│   └── seed.ts           # Database seeding
+└── public/               # Static assets
+```
 
-6. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+## 👥 User Roles
 
-## Demo Accounts
+### Administrator
+- Full system access
+- User management
+- Role and permission management
+- All task operations
 
-The application comes pre-seeded with three demo accounts:
+### Manager
+- Team management
+- Task assignment
+- Project oversight
+- Export capabilities
 
-- **Anderson Meta**: anderson@example.com
-- **Boris Toma**: boris@example.com
-- **Vladimir Medic**: vladimir@example.com
+### User
+- Create and manage own tasks
+- View assigned tasks
+- Basic reporting
 
-Password for all accounts: `password123`
+### Viewer
+- Read-only access
+- View tasks and reports
+- No modification rights
 
-## Available Scripts
+## 🔧 Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
@@ -117,70 +154,75 @@ Password for all accounts: `password123`
 - `npm run lint` - Run ESLint
 - `npm run db:generate` - Generate Prisma client
 - `npm run db:push` - Push schema to database
-- `npm run db:seed` - Seed database with sample data
+- `npm run db:seed` - Seed database with initial data
 - `npm run db:studio` - Open Prisma Studio
-- `npm run test` - Run unit tests
-- `npm run test:e2e` - Run E2E tests
+- `npm run test` - Run tests
+- `npm run test:e2e` - Run end-to-end tests
 
-## Project Structure
+## 🌐 Deployment Options
 
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── auth/              # Authentication pages
-│   └── globals.css        # Global styles
-├── components/            # React components
-│   ├── ui/               # shadcn/ui components
-│   ├── dashboard.tsx     # Main dashboard
-│   ├── task-table.tsx    # Task management table
-│   ├── task-dialog.tsx   # Task creation/editing
-│   └── activity-feed.tsx # Activity timeline
-├── lib/                  # Utilities and configurations
-│   ├── auth.ts          # NextAuth configuration
-│   ├── prisma.ts        # Prisma client
-│   └── utils.ts         # Utility functions
-└── types/               # TypeScript type definitions
-    └── task.ts          # Task-related types
-```
+### Vercel (Recommended)
+1. Push your code to GitHub
+2. Connect your GitHub repository to Vercel
+3. Set environment variables in Vercel dashboard
+4. Deploy automatically
 
-## Key Features
+### Other Platforms
+- **Netlify**: Static site deployment
+- **Railway**: Full-stack deployment with database
+- **DigitalOcean**: VPS deployment
+- **AWS**: Scalable cloud deployment
 
-### Real-time Updates
+## 🔐 Security Features
 
-- Live task updates across all users
-- Activity feed with real-time notifications
-- Collaborative editing capabilities
+- Secure authentication with NextAuth.js
+- Role-based access control
+- Email verification for new accounts
+- Password reset functionality
+- CSRF protection
+- Input validation and sanitization
 
-### Advanced Task Management
+## 📊 Database Schema
 
-- Comprehensive task fields and metadata
-- Subtask breakdown and tracking
-- Dependency management
-- Risk assessment and priority management
+The application uses the following main entities:
+- **Users**: User accounts and authentication
+- **Tasks**: Task management with full lifecycle
+- **Roles**: Role-based permissions
+- **Activities**: Audit trail and activity tracking
+- **Notifications**: Alert system
+- **Dashboard Widgets**: Customizable dashboard
 
-### Modern UI/UX
-
-- Responsive design with Tailwind CSS
-- Accessible components with shadcn/ui
-- Intuitive task management interface
-- Customizable views and filters
-
-### Developer Experience
-
-- TypeScript for type safety
-- ESLint and Prettier for code quality
-- Husky for pre-commit hooks
-- Comprehensive testing setup
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📝 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in the GitHub repository
+- Contact the development team
+- Check the documentation
+
+## 🎯 Roadmap
+
+### Planned Features
+- [ ] Calendar View
+- [ ] Gantt Chart
+- [ ] Weekly/Monthly Reports
+- [ ] Team Chat Integration
+- [ ] Mobile App
+- [ ] Offline Mode
+- [ ] Advanced Analytics
+- [ ] API Documentation
+
+---
+
+Built with ❤️ for efficient team collaboration and project management.

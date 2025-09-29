@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
+import io from 'socket.io-client'
 
 export const useSocket = () => {
-  const [socket, setSocket] = useState<Socket | null>(null)
+  const [socket, setSocket] = useState<any>(null)
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || 'http://localhost:3000', {
+    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || 'http://localhost:3001', {
       path: '/api/socket',
     })
 
@@ -31,3 +31,5 @@ export const useSocket = () => {
 
   return { socket, isConnected }
 }
+
+

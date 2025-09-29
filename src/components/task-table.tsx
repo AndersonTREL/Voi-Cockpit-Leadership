@@ -58,9 +58,10 @@ const riskColors = {
 
 interface TaskTableProps {
   statusFilter?: "active" | "done"
+  onTaskSaved?: () => void
 }
 
-export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
+export function TaskTable({ statusFilter = "active", onTaskSaved }: TaskTableProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -136,6 +137,10 @@ export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
     setEditingTask(null)
     setIsTaskDialogOpen(false)
     fetchTasks() // Refresh the task list
+    // Call parent callback if provided
+    if (onTaskSaved) {
+      onTaskSaved()
+    }
   }
 
   const handleRestoreTask = async (taskId: string) => {
@@ -263,11 +268,18 @@ export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
     {
       accessorKey: "owner",
       header: "Owner",
-      cell: ({ row }) => (
-        <div className="font-medium whitespace-normal break-words" title={row.original.owner?.name}>
-          {row.original.owner?.name}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const task = row.original as any
+        
+        // Show the owner's name
+        const displayName = task.owner?.name || "-"
+        
+        return (
+          <div className="font-medium whitespace-normal break-words" title={displayName}>
+            {displayName}
+          </div>
+        )
+      },
       size: 180,
     },
     {
@@ -396,7 +408,7 @@ export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
     ...(statusFilter === "done" ? [{
       accessorKey: "updatedAt",
       header: "Completed",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => any } }) => {
         const date = row.getValue("updatedAt") as string
         return (
           <span className="text-sm text-gray-600">
@@ -501,8 +513,8 @@ export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
   }
 
   return (
-    <div className="w-full max-w-none mx-auto px-8">
-      <Card className="w-full">
+    <div className="w-full max-w-none mx-auto">
+      <Card className="w-full modern-card">
         <CardHeader>
           <CardTitle>
             {statusFilter === "done" ? "Completed Tasks" : "Active Tasks"}
@@ -630,7 +642,7 @@ export function TaskTable({ statusFilter = "active" }: TaskTableProps) {
             setEditingTask(null)
           }
         }}
-        task={editingTask}
+        task={editingTask || undefined}
         onTaskSaved={handleTaskSaved}
       />
 

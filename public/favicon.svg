@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heart-shaped leaves logo for favicon -->
+  <g>
+    <!-- Left leaf (darker green) -->
+    <path d="M8 4 C4,8, 4,16, 8,20 C10,22, 12,20, 14,18 C12,20, 10,22, 8,20 C4,16, 4,8, 8,4 Z" fill="#2E8B57"/>
+    <!-- Right leaf (lighter green) -->
+    <path d="M24 4 C28,8, 28,16, 24,20 C22,22, 20,20, 18,18 C20,20, 22,22, 24,20 C28,16, 28,8, 24,4 Z" fill="#8BC34A"/>
+    <!-- Leaf veins - left leaf -->
+    <path d="M8 8 L12 12 M8 16 L14 18 M8 20 L12 19" stroke="#4CAF50" stroke-width="0.5" fill="none" opacity="0.7"/>
+    <!-- Leaf veins - right leaf -->
+    <path d="M24 8 L20 12 M24 16 L16 18 M24 20 L20 19" stroke="#A4D65E" stroke-width="0.5" fill="none" opacity="0.7"/>
+  </g>
+</svg>

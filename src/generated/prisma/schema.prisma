@@ -1,0 +1,307 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String    @unique
+  password            String? // For credentials authentication
+  emailVerified       DateTime?
+  image               String?
+  verificationToken   String? // For email verification
+  resetToken          String? // For password reset
+  resetTokenExpiry    DateTime? // Password reset token expiry
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime? // Account lockout
+  role                UserRole  @default(USER)
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  tasks            Task[]               @relation("TaskOwner")
+  comments         Comment[]
+  activities       Activity[]
+  userRoles        UserRoleAssignment[]
+  alerts           Alert[]
+  notifications    Notification[]
+  dashboardWidgets DashboardWidget[]
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  USER
+  VIEWER
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  resource    String // e.g., 'tasks', 'users', 'settings'
+  action      String // e.g., 'create', 'read', 'update', 'delete'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roleAssignments RolePermission[]
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isSystem    Boolean  @default(false) // System roles cannot be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions RolePermission[]
+  userRoles   UserRoleAssignment[]
+}
+
+model RolePermission {
+  id           String @id @default(cuid())
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model UserRoleAssignment {
+  id         String    @id @default(cuid())
+  userId     String
+  roleId     String
+  assignedBy String? // Admin who assigned this role
+  assignedAt DateTime  @default(now())
+  expiresAt  DateTime? // Optional expiration date
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Status {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  BLOCKED
+  CANCELLED
+}
+
+enum Risk {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Task {
+  id                 String    @id @default(cuid())
+  title              String
+  description        String?
+  area               String
+  subArea            String?
+  endProduct         String?
+  ownerId            String
+  ownerDisplayName   String? // Store the original owner selection for display
+  priority           Priority  @default(MEDIUM)
+  status             Status    @default(TODO)
+  acceptanceCriteria String?
+  dueDate            DateTime?
+  startDate          DateTime?
+  effort             Int? // in hours
+  risk               Risk?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  owner         User             @relation("TaskOwner", fields: [ownerId], references: [id])
+  subtasks      Subtask[]
+  dependencies  TaskDependency[] @relation("TaskDependencies")
+  dependents    TaskDependency[] @relation("DependentTasks")
+  comments      Comment[]
+  attachments   Attachment[]
+  activities    Activity[]
+  views         TaskView[]
+  notifications Notification[]
+}
+
+model Subtask {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  taskId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model TaskDependency {
+  id          String   @id @default(cuid())
+  taskId      String
+  dependentId String
+  createdAt   DateTime @default(now())
+
+  task      Task @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+  dependent Task @relation("DependentTasks", fields: [dependentId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dependentId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  taskId    String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  size      Int
+  mimeType  String
+  taskId    String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  type      String // 'created', 'updated', 'commented', 'status_changed', etc.
+  message   String
+  taskId    String?
+  userId    String
+  metadata  Json? // Additional data about the activity
+  createdAt DateTime @default(now())
+
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User  @relation(fields: [userId], references: [id])
+}
+
+model TaskView {
+  id        String   @id @default(cuid())
+  name      String
+  filters   Json // Saved filter criteria
+  columns   Json // Saved column configuration
+  sortBy    String?
+  sortOrder String?
+  taskId    String?
+  userId    String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String // 'deadline', 'overdue', 'daily_summary'
+  isEnabled   Boolean  @default(true)
+  advanceDays Int      @default(1) // How many days in advance to alert
+  timeOfDay   String   @default("09:00") // Time to send daily alerts
+  channels    Json     @default("[\"email\"]") // ["email", "browser", "sms"]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String // 'deadline_alert', 'overdue_task', 'task_completed'
+  title     String
+  message   String
+  taskId    String?
+  isRead    Boolean   @default(false)
+  isSent    Boolean   @default(false)
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model DashboardWidget {
+  id         String   @id @default(cuid())
+  userId     String
+  widgetType String // 'task_stats', 'recent_tasks', 'priority_breakdown', 'upcoming_deadlines'
+  position   Int // Order of widget on dashboard
+  isEnabled  Boolean  @default(true)
+  config     String   @default("{}") // Widget-specific configuration (JSON string)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

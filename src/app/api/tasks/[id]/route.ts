@@ -78,6 +78,7 @@ export async function PUT(
       area,
       subArea,
       endProduct,
+      owner,
       priority,
       status,
       acceptanceCriteria,
@@ -97,22 +98,44 @@ export async function PUT(
       return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
+    // Only validate owner if it's being changed
+    let ownerId = currentTask.ownerId // Keep current owner by default
+    
+    if (owner && owner !== currentTask.ownerId) {
+      console.log("Owner selection (update):", owner)
+      
+      const selectedUser = await prisma.user.findUnique({ where: { id: owner } })
+      if (!selectedUser) {
+        console.error("Invalid owner ID:", owner)
+        return NextResponse.json({ error: "Invalid owner selected" }, { status: 400 })
+      }
+      
+      console.log("Selected user (update):", selectedUser.name, "with ID:", owner)
+      ownerId = owner
+    }
+
+    // Build update data object with only provided fields
+    const updateData: any = {}
+    
+    if (title !== undefined) updateData.title = title
+    if (description !== undefined) updateData.description = description
+    if (area !== undefined) updateData.area = area
+    if (subArea !== undefined) updateData.subArea = subArea
+    if (endProduct !== undefined) updateData.endProduct = endProduct
+    if (ownerId !== currentTask.ownerId) updateData.ownerId = ownerId
+    if (priority !== undefined) updateData.priority = priority
+    if (status !== undefined) updateData.status = status
+    if (acceptanceCriteria !== undefined) updateData.acceptanceCriteria = acceptanceCriteria
+    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null
+    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null
+    if (effort !== undefined) updateData.effort = effort ? parseInt(effort) : null
+    if (risk !== undefined) updateData.risk = risk
+
+    console.log("Updating task with data:", updateData)
+
     const task = await prisma.task.update({
       where: { id },
-      data: {
-        title,
-        description,
-        area,
-        subArea,
-        endProduct,
-        priority: priority || Priority.MEDIUM,
-        status: status || Status.TODO,
-        acceptanceCriteria,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        startDate: startDate ? new Date(startDate) : null,
-        effort: effort ? parseInt(effort) : null,
-        risk: risk || null,
-      },
+      data: updateData,
       include: {
         owner: true,
       },
@@ -123,6 +146,7 @@ export async function PUT(
     if (currentTask.title !== title) changes.push(`title changed to "${title}"`)
     if (currentTask.status !== status) changes.push(`status changed to "${status}"`)
     if (currentTask.priority !== priority) changes.push(`priority changed to "${priority}"`)
+    if (currentTask.ownerId !== ownerId) changes.push(`owner changed`)
     
     if (changes.length > 0) {
       await prisma.activity.create({
@@ -130,7 +154,7 @@ export async function PUT(
           type: "updated",
           message: `Task "${title}" was updated: ${changes.join(", ")}`,
           taskId: task.id,
-          userId: session.user.id,
+          userId: (session.user as any)?.id || "",
         },
       })
     }
