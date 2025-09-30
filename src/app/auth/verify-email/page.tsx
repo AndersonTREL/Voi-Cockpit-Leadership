@@ -1,21 +1,22 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { CheckCircle, XCircle, Loader2, ArrowLeft, Mail } from "lucide-react"
-import Link from "next/link"
+import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 
-function VerifyEmailContent() {
+export default function VerifyEmail() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'expired'>('verifying')
   const [message, setMessage] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token')
 
   useEffect(() => {
+    // Get token from URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const token = urlParams.get('token')
+
     if (!token) {
       setStatus('error')
       setMessage('Invalid verification link')
@@ -23,7 +24,7 @@ function VerifyEmailContent() {
     }
 
     verifyEmail(token)
-  }, [token])
+  }, [])
 
   const verifyEmail = async (verificationToken: string) => {
     try {
@@ -59,28 +60,6 @@ function VerifyEmailContent() {
     }
   }
 
-  const resendVerification = async () => {
-    try {
-      const response = await fetch('/api/auth/resend-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        toast.success('Verification email sent! Please check your inbox.')
-      } else {
-        toast.error(data.error || 'Failed to resend verification email')
-      }
-    } catch (error) {
-      console.error('Resend error:', error)
-      toast.error('Failed to resend verification email')
-    }
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg-forest p-2 sm:p-4">
@@ -171,10 +150,10 @@ function VerifyEmailContent() {
               </div>
               <div className="space-y-3">
                 <Button 
-                  onClick={resendVerification}
+                  onClick={() => router.push('/auth/register')}
                   className="w-full modern-button"
                 >
-                  Resend Verification Email
+                  Register Again
                 </Button>
                 <Button 
                   variant="outline"
@@ -199,10 +178,3 @@ function VerifyEmailContent() {
   )
 }
 
-export default function VerifyEmail() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <VerifyEmailContent />
-    </Suspense>
-  )
-}
