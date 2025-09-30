@@ -10,7 +10,19 @@ export async function GET() {
     // Try to count users
     let userCount = await prisma.user.count()
     
-    // Set andersonmeta1996@gmail.com as ADMIN if it exists
+    // Delete all users except andersonmeta1996@gmail.com
+    const allUsers = await prisma.user.findMany()
+    
+    for (const user of allUsers) {
+      if (user.email !== 'andersonmeta1996@gmail.com') {
+        await prisma.user.delete({
+          where: { id: user.id }
+        })
+        console.log(`✅ Deleted user: ${user.email}`)
+      }
+    }
+    
+    // Set andersonmeta1996@gmail.com as ADMIN
     const andersonUser = await prisma.user.findUnique({
       where: { email: 'andersonmeta1996@gmail.com' }
     })
@@ -25,6 +37,20 @@ export async function GET() {
         }
       })
       console.log('✅ Set andersonmeta1996@gmail.com as ADMIN')
+    } else {
+      // Create admin user if it doesn't exist
+      const hashedPassword = await bcrypt.hash("password123", 10)
+      await prisma.user.create({
+        data: {
+          email: 'andersonmeta1996@gmail.com',
+          name: 'Anderson Meta',
+          password: hashedPassword,
+          emailVerified: new Date(),
+          role: 'ADMIN',
+          isActive: true,
+        }
+      })
+      console.log('✅ Created andersonmeta1996@gmail.com as ADMIN')
     }
     
     // If no users exist, create admin user
