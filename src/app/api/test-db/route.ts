@@ -10,20 +10,16 @@ export async function GET() {
     // Try to count users
     let userCount = await prisma.user.count()
     
-    // Verify andersonmeta1996@gmail.com if it exists but isn't verified
+    // Delete andersonmeta1996@gmail.com if it exists
     const andersonUser = await prisma.user.findUnique({
       where: { email: 'andersonmeta1996@gmail.com' }
     })
     
-    if (andersonUser && !andersonUser.emailVerified) {
-      await prisma.user.update({
-        where: { id: andersonUser.id },
-        data: { 
-          emailVerified: new Date(),
-          isActive: true 
-        }
+    if (andersonUser) {
+      await prisma.user.delete({
+        where: { id: andersonUser.id }
       })
-      console.log('✅ Verified andersonmeta1996@gmail.com')
+      console.log('✅ Deleted andersonmeta1996@gmail.com account')
     }
     
     // If no users exist, create admin user
