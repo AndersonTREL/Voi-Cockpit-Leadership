@@ -30,7 +30,7 @@ export async function sendVerificationEmail(email: string, token: string, name?:
   const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}`
   
   const mailOptions = {
-    from: `"VOI Cockpit" <${process.env.SMTP_USER || 'noreply@voicockpit.com'}>`,
+    from: `"VOI Cockpit - Anderson Meta" <${process.env.SMTP_USER || 'andersonmeta1996@gmail.com'}>`,
     to: email,
     subject: 'Verify your email address - VOI Cockpit',
     html: `
@@ -96,7 +96,7 @@ export async function sendPasswordResetEmail(email: string, token: string, name?
   const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`
   
   const mailOptions = {
-    from: `"VOI Cockpit" <${process.env.SMTP_USER || 'noreply@voicockpit.com'}>`,
+    from: `"VOI Cockpit - Anderson Meta" <${process.env.SMTP_USER || 'andersonmeta1996@gmail.com'}>`,
     to: email,
     subject: 'Reset your password - VOI Cockpit',
     html: `
@@ -163,7 +163,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
   const loginUrl = `${baseUrl}/auth/signin`
   
   const mailOptions = {
-    from: `"VOI Cockpit" <${process.env.SMTP_USER || 'noreply@voicockpit.com'}>`,
+    from: `"VOI Cockpit - Anderson Meta" <${process.env.SMTP_USER || 'andersonmeta1996@gmail.com'}>`,
     to: email,
     subject: 'Welcome to VOI Cockpit - Your account is ready!',
     html: `
