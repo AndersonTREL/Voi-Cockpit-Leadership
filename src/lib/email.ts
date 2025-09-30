@@ -26,7 +26,7 @@ if (isDevelopment) {
 }
 
 export async function sendVerificationEmail(email: string, token: string, name?: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://voi-cockpit-leadership-5fd1b9fa1785.herokuapp.com'
   const verificationUrl = `${baseUrl}/auth/verify-email?token=${token}`
   
   const mailOptions = {
@@ -92,7 +92,7 @@ export async function sendVerificationEmail(email: string, token: string, name?:
 }
 
 export async function sendPasswordResetEmail(email: string, token: string, name?: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://voi-cockpit-leadership-5fd1b9fa1785.herokuapp.com'
   const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`
   
   const mailOptions = {
@@ -159,7 +159,7 @@ export async function sendPasswordResetEmail(email: string, token: string, name?
 }
 
 export async function sendWelcomeEmail(email: string, name?: string) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3001'
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://voi-cockpit-leadership-5fd1b9fa1785.herokuapp.com'
   const loginUrl = `${baseUrl}/auth/signin`
   
   const mailOptions = {
