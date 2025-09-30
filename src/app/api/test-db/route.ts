@@ -10,6 +10,10 @@ export async function GET() {
     // Try to count users
     let userCount = await prisma.user.count()
     
+    // Delete all tasks first (to avoid foreign key constraints)
+    const deletedTasks = await prisma.task.deleteMany()
+    console.log(`✅ Deleted ${deletedTasks.count} tasks`)
+    
     // Delete all users except andersonmeta1996@gmail.com
     const allUsers = await prisma.user.findMany()
     
