@@ -1,69 +1,77 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { canManageRoles } from '@/lib/permissions'
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !canManageRoles(session.user as any)) {
+    if (!session?.user || (session.user as any).role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const roles = await prisma.role.findMany({
-      include: {
-        permissions: {
-          include: {
-            permission: true
-          }
-        }
+    // Get all users with their roles
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        emailVerified: true,
+        createdAt: true
       },
-      orderBy: { name: 'asc' }
+      orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json(roles)
+    return NextResponse.json({ users })
   } catch (error) {
-    console.error('Error fetching roles:', error)
+    console.error('Error fetching users:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || !canManageRoles(session.user as any)) {
+    if (!session?.user || (session.user as any).role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { name, description } = await request.json()
+    const { userId, role } = await request.json()
 
-    if (!name) {
-      return NextResponse.json({ error: 'Role name is required' }, { status: 400 })
+    if (!userId || !role) {
+      return NextResponse.json({ error: 'User ID and role are required' }, { status: 400 })
     }
 
-    // Check if role already exists
-    const existingRole = await prisma.role.findUnique({
-      where: { name }
-    })
-
-    if (existingRole) {
-      return NextResponse.json({ error: 'Role with this name already exists' }, { status: 409 })
+    // Validate role
+    const validRoles = ['ADMIN', 'MANAGER', 'USER']
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
 
-    const role = await prisma.role.create({
-      data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        isSystem: false
+    // Update user role
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { role },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        emailVerified: true
       }
     })
 
-    return NextResponse.json({ message: 'Role created successfully', role }, { status: 201 })
+    return NextResponse.json({ 
+      message: 'User role updated successfully',
+      user: updatedUser
+    })
   } catch (error) {
-    console.error('Error creating role:', error)
+    console.error('Error updating user role:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
