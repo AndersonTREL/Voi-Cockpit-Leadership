@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "sonner"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 
 export default function VerifyEmail() {
@@ -17,6 +16,8 @@ export default function VerifyEmail() {
     const urlParams = new URLSearchParams(window.location.search)
     const token = urlParams.get('token')
 
+    console.log('Token found:', token) // Debug log
+
     if (!token) {
       setStatus('error')
       setMessage('Invalid verification link')
@@ -28,6 +29,8 @@ export default function VerifyEmail() {
 
   const verifyEmail = async (verificationToken: string) => {
     try {
+      console.log('Verifying token:', verificationToken) // Debug log
+      
       const response = await fetch('/api/auth/verify-email', {
         method: 'POST',
         headers: {
@@ -37,11 +40,11 @@ export default function VerifyEmail() {
       })
 
       const data = await response.json()
+      console.log('Verification response:', data) // Debug log
 
       if (response.ok) {
         setStatus('success')
         setMessage(data.message || 'Email verified successfully!')
-        toast.success('Email verified successfully!')
       } else {
         if (data.error?.includes('expired') || data.error?.includes('invalid')) {
           setStatus('expired')
@@ -50,108 +53,55 @@ export default function VerifyEmail() {
           setStatus('error')
           setMessage(data.error || 'Verification failed')
         }
-        toast.error(data.error || 'Verification failed')
       }
     } catch (error) {
       console.error('Verification error:', error)
       setStatus('error')
       setMessage('An error occurred during verification')
-      toast.error('An error occurred during verification')
     }
   }
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-bg-forest p-2 sm:p-4">
-      <Card className="w-full max-w-md modern-card mx-2 sm:mx-0">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto flex items-center justify-center mb-4">
-            <img 
-              src="/tree-logistics-logo.svg" 
-              alt="TREE LOGISTICS Logo" 
-              className="h-16 w-auto drop-shadow-sm"
-            />
-          </div>
-          <div className="pt-2">
-            <CardTitle className="text-2xl font-bold text-gray-900">Email Verification</CardTitle>
-            <CardDescription className="text-base text-gray-600">
-              VOI Cockpit - Leadership Portal
-            </CardDescription>
-          </div>
+    <div className="min-h-screen flex items-center justify-center gradient-bg-forest p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Email Verification</CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-6">
+        <CardContent className="text-center space-y-4">
           {status === 'verifying' && (
             <div className="space-y-4">
-              <div className="flex justify-center">
-                <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
-              </div>
-              <p className="text-gray-600">Verifying your email address...</p>
+              <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
+              <p>Verifying your email address...</p>
             </div>
           )}
 
           {status === 'success' && (
             <div className="space-y-4">
-              <div className="flex justify-center">
-                <CheckCircle className="h-12 w-12 text-green-600" />
-              </div>
-              <div className="space-y-2">
+              <CheckCircle className="h-12 w-12 text-green-600 mx-auto" />
+              <div>
                 <h3 className="text-lg font-semibold text-green-800">Email Verified!</h3>
                 <p className="text-gray-600">{message}</p>
               </div>
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => router.push('/auth/signin')}
-                  className="w-full modern-button"
-                >
-                  Continue to Sign In
-                </Button>
-                <p className="text-sm text-gray-500">
-                  You can now sign in with your email and password.
-                </p>
-              </div>
+              <Button 
+                onClick={() => router.push('/auth/signin')}
+                className="w-full"
+              >
+                Continue to Sign In
+              </Button>
             </div>
           )}
 
           {status === 'error' && (
             <div className="space-y-4">
-              <div className="flex justify-center">
-                <XCircle className="h-12 w-12 text-red-600" />
-              </div>
-              <div className="space-y-2">
+              <XCircle className="h-12 w-12 text-red-600 mx-auto" />
+              <div>
                 <h3 className="text-lg font-semibold text-red-800">Verification Failed</h3>
                 <p className="text-gray-600">{message}</p>
               </div>
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => router.push('/auth/register')}
-                  className="w-full modern-button"
-                >
-                  Try Registering Again
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => router.push('/auth/signin')}
-                  className="w-full"
-                >
-                  Back to Sign In
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {status === 'expired' && (
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <XCircle className="h-12 w-12 text-yellow-600" />
-              </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-yellow-800">Link Expired</h3>
-                <p className="text-gray-600">{message}</p>
-              </div>
-              <div className="space-y-3">
                 <Button 
                   onClick={() => router.push('/auth/register')}
-                  className="w-full modern-button"
+                  className="w-full"
                 >
                   Register Again
                 </Button>
@@ -166,15 +116,32 @@ export default function VerifyEmail() {
             </div>
           )}
 
-          <div className="pt-4 border-t border-gray-200">
-            <div className="text-center text-xs text-gray-400">
-              <p>&copy; 2025 Anderson Meta. All rights reserved.</p>
-              <p className="mt-1">Version 1.0.0 | VOI Cockpit - Leadership Portal</p>
+          {status === 'expired' && (
+            <div className="space-y-4">
+              <XCircle className="h-12 w-12 text-yellow-600 mx-auto" />
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-800">Link Expired</h3>
+                <p className="text-gray-600">{message}</p>
+              </div>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => router.push('/auth/register')}
+                  className="w-full"
+                >
+                  Register Again
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => router.push('/auth/signin')}
+                  className="w-full"
+                >
+                  Back to Sign In
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
-
